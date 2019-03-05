@@ -7,16 +7,63 @@
 
 #%%----------------------------------------------------
 
+class HNode(object):
+    def __init__(self, root, left, right, code):
+        self.root = root #string w/ the value
+        self.left = left #HNode
+        self.right = right #HNode
+        self.code = code #Huffman code
+
 '''
 Dada una distribucion de probabilidad, hallar un código de Huffman asociado
 '''
 
-def Huffman(p):
+def assignCodes(tree): #tree is a root node
+    #print(str(tree.root))
 
-    return codigo
+    if (tree.left is not None): 
+        tree.left.code = "0"
+        assignCodes(tree.left)
+    #else: print("$")
+    
+    if (tree.right is not None): 
+        tree.right.code= "1"
+        assignCodes(tree.right)
+    #else: print("$")
+    return
+
+def printCodes(tree, code):
+    if (tree.left is None): # if its a leaf
+        print("Freq: " + str(tree.root) + " Code: " + code + "" + tree.code)
+    else: 
+        printCodes(tree.left, code + tree.code)
+        printCodes(tree.right, code + tree.code)
+
+def createTree(p):
+    tree = []
+    for P in p:
+        n = HNode(P, None, None, "")
+        tree.append(n)
+
+    tree = sorted(tree, key=lambda x: x.root)
+    while (len(tree) > 1):
+        n = HNode(tree[0].root+tree[1].root, tree[1], tree[0], "")
+        tree.pop(1)
+        tree.pop(0)
+        tree.append(n)
+        tree = sorted(tree, key=lambda x: x.root)
+    return tree[0]
+
+def Huffman(p):
+    tree = createTree(p) #root node of the huffmann tree, no codes assigned yet
+    assignCodes(tree)
+    printCodes(tree, "")
+    return "hi"
 
 
 #
+p=[0.5,0.1,0.2,0.1,0.05,0.05]
+Huffman(p)
 '''
 p=[0.5,0.1,0.2,0.1,0.05,0.05]
 
