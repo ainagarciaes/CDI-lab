@@ -54,12 +54,8 @@ def IntegerArithmeticCode(mensaje,alfabeto,frecuencias):
                                 u = (u*2 + 1)%r
                                 lbin = format(l, fr)
                                 ubin = format(u, fr)
-                                while(scale3 > 0): # !! en l'exemple no envien el complement, mirar de decodificar i si no funciona treure lo del complement
-                                        print('sending complement... ', lbin)
-                                        if (lbin[0] == '1'): 
-                                                code += '0'
-                                        else:
-                                                code += '1'
+                                while(scale3 > 0): 
+                                        code += lbin[0]
                                         scale3 -= 1
                         if (lbin[1]=='1' and ubin[1]=='0'):
                                 lbin = format(l, fr)
@@ -109,11 +105,6 @@ def limiteIntervaloSup (alfabeto, frecuencias, m):
                 a += frecuencias[i]
         return a    
 
-alfabeto=['1','2','3']
-frecuencias=[40,1,9]
-mensaje='1321'
-
-print(IntegerArithmeticCode(mensaje,alfabeto,frecuencias))
 #%%
             
             
@@ -133,61 +124,104 @@ def IntegerArithmeticDecode(codigo,tamanyo_mensaje,alfabeto,frecuencias):
         while r < 4*T:          # calculo de r 
                 r = 2*r
                 lon += 1 #longitud de la paraula en bits
-        l = 0
-        u = r-1   
-
+        
         decoded = ''
+        fr = '0'+str(lon)+'b'
 
-        for m in mensaje:
-                lfix = l
-                ufix = u
-                l = int(lfix + ((ufix - lfix + 1)*limiteIntervaloInf(alfabeto, frecuencias, m)/T))%r
-                u = int(lfix + ((ufix - lfix + 1)*limiteIntervaloSup(alfabeto, frecuencias, m)/T) - 1)%r
-                lfix = l
-                ufix = u
+        l = 0
+        u = r-1  
+        li = 0
+        ls = lon
+        t = codigo[li:ls]
+        while (ls <= len(codigo) and tamanyo_mensaje > 0):
+                tint = int(t, 2)
+                value = int(((tint-l+1)*T-1)/(u-l+1))
 
-                lbin = format(l, fr)
-                ubin = format(u, fr)
+                found = False
+                Tant = 0
+                T2 = 0
+                ind = 0
+                for f in frecuencias:
+                        T2  += f
+                        
+                        if (T2 > value and Tant <= value):
+                                found = True
+                                tamanyo_mensaje -= 1
+                                break
+                        else:
+                                Tant = T2
+                        ind += 1
+
+                if found:
+                        decoded += alfabeto[ind]
+                        print(decoded)
+                        lfix = l
+                        ufix = u
+                        l = int(lfix + ((ufix - lfix + 1)*limiteIntervaloInf(alfabeto, frecuencias, alfabeto[ind])/T))%r
+                        u = int(lfix + ((ufix - lfix + 1)*limiteIntervaloSup(alfabeto, frecuencias, alfabeto[ind])/T) - 1)%r
+
+                        lbin = format(l, fr)
+                        ubin = format(u, fr)
+                        while (lbin[0] == ubin[0] or (lbin[1]=='1' and ubin[1]=='0')):
+                                if (lbin[0] == ubin[0]):                            
+                                        l = (l*2)%r
+                                        u = (u*2 + 1)%r
+                                        ls += 1
+                                        li += 1
+                                        t = codigo[li:ls]
+                                        tint = int(t, 2)
+                                        lbin = format(l, fr)
+                                        ubin = format(u, fr)
+                                        
+                                if (lbin[1]=='1' and ubin[1]=='0'):
+                                        lbin = format(l, fr)
+                                        ubin = format(u, fr)
+                                        ls += 1
+                                        li += 1                                       
+                                        t = codigo[li:ls]
+                                        list1 = list(lbin)
+                                        list2 = list(ubin)
+                                        list3 = list(t)
+                                        if (lbin[1] == '1'):                                                
+                                                l = (l*2-int(r/2))%r
+                                                lbin = format(l, fr)
+                                                list1 = list(lbin)
+                                                list1[0] = '0'
+                                        else: 
+                                                l = (l*2-int(r/2))%r
+                                                lbin = format(l, fr)
+                                                list1 = list(lbin)
+                                                list1[0] = '1'
+
+                                        if (ubin[1] == '1'):                       
+                                                u = (u*2 + 1 - int(r/2))%r
+                                                ubin = format(u, fr)
+                                                list2 = list(ubin)
+                                                list2[0] = '0'
+                                        else:                
+                                                u = (u*2 + 1 + int(r/2))%r
+                                                ubin = format(u, fr)
+                                                list2 = list(ubin)
+                                                list2[0] = '1'
+
+
+                                        if (t[0] == '1'):
+                                                list3[0] = '0'
+                                        else: 
+                                                list3[0] = '1'
+                                        lbin = ''.join(list1)
+                                        ubin = ''.join(list2)
+                                        t = ''.join(list3)
+                                        tint = int(t, 2)   
+                                        print("l: ", l, lbin, "u: ", u,ubin, "t:", tint)  
+        return decoded                                               
                 
-                while (lbin[0] == ubin[0] or (lbin[1]=='1' and ubin[1]=='0')):
-                        if (lbin[0] == ubin[0]):                           
-                                l = (l*2)%r
-                                u = (u*2 + 1)%r
-                                lbin = format(l, fr)
-                                ubin = format(u, fr)
-                                # t = ...
-
-                        if (lbin[1]=='1' and ubin[1]=='0'):
-                                lbin = format(l, fr)
-                                ubin = format(u, fr)
-
-                                list1 = list(lbin)
-                                list2 = list(ubin)
-                                if (lbin[1] == '1'): 
-                                        list1[1] = '0'
-                                        l = (l*2-int(r/2))%r
-                                else: 
-                                        list1[1] = '1'
-                                        l = (l*2+int(r/2))%r
-
-                                if (ubin[1] == '1'): 
-                                        list2[1] = '0'
-                                        u = (u*2 + 1 - int(r/2))%r
-                                else: 
-                                        list2[1] = '1'
-                                        u = (u*2 + 1 + int(r/2))%r
-                                lbin = ''.join(list1)
-                                ubin = ''.join(list2)
-                                # do the same w/ t
-
-             
-            
-#%%
-       
-
-
-
-
+alfabeto=['1','2','3']
+frecuencias=[40,1,9]
+mensaje='1321'
+c = IntegerArithmeticCode(mensaje,alfabeto,frecuencias)
+print(c)
+print(IntegerArithmeticDecode(c,len(mensaje),alfabeto,frecuencias))
 #%%
 '''
 Definir una función que codifique un mensaje utilizando codificación aritmética con precisión infinita
@@ -197,14 +231,13 @@ Definir otra función que decodifique los mensajes codificados con la función
 anterior.
 '''
 
-'''
+
 def EncodeArithmetic(mensaje_a_codificar):
     return mensaje_codificado,alfabeto,frecuencias
     
 def DecodeArithmetic(mensaje_codificado,tamanyo_mensaje,alfabeto,frecuencias):
-
     return mensaje_decodificado
-        '''
+        
 #%%
 '''
 Ejemplo (!El mismo mensaje se puede codificar con varios códigos¡)
