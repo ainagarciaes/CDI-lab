@@ -27,50 +27,93 @@ def IntegerArithmeticCode(mensaje,alfabeto,frecuencias):
         for f in frecuencias:   # suma de freq
                 T += f
 
-        l = 0
+        lon = 0
         while r < 4*T:          # calculo de r 
                 r = 2*r
-                l += 1 #longitud de la paraula en bits
+                lon += 1 #longitud de la paraula en bits
 
-        code = ''
+        code = ''     
+        fr = '0'+str(lon)+'b'
+        l = 0
+        u = r-1
+        scale3 = 0
+        for m in mensaje:
+                lfix = l
+                ufix = u
+                l = int(lfix + ((ufix - lfix + 1)*limiteIntervaloInf(alfabeto, frecuencias, m)/T))%r
+                u = int(lfix + ((ufix - lfix + 1)*limiteIntervaloSup(alfabeto, frecuencias, m)/T) - 1)%r
+                lfix = l
+                ufix = u
 
-        v = 0 #index del missatge que estem tractant
-        a = r
-        b = r
-        while i < l:
-                # buscar interval
-                a *= limiteIntervaloInf(alfabeto, frecuencias, mensaje[v])/r
-                b *= limiteIntervaloSup(alfabeto, frecuencias, mensaje[v])/r
-                # e1
-                if (b < r/2):
-                        code += '0'
-                        # rescale a and b
-                        a *= 2
-                        b *= 2 
-                        l += 1
-                # e2
-                elif (a >= r/2):
-                        code += '1'
-                        # reescale
-                        a = a*2 - r/2
-                        b = b*2 - r/2
-                        l += 1
-                else:
-                        v += 1
+                lbin = format(l, fr)
+                ubin = format(u, fr)
+                while (lbin[0] == ubin[0] or (lbin[1]=='1' and ubin[1]=='0')):
+                        if (lbin[0] == ubin[0]):
+                                code += lbin[0]                             
+                                l = (l*2)%r
+                                u = (u*2 + 1)%r
+                                lbin = format(l, fr)
+                                ubin = format(u, fr)
+                                while(scale3 > 0): # !! en l'exemple no envien el complement, mirar de decodificar i si no funciona treure lo del complement
+                                        print('sending complement... ', lbin)
+                                        if (lbin[0] == '1'): 
+                                                code += '0'
+                                        else:
+                                                code += '1'
+                                        scale3 -= 1
+                        if (lbin[1]=='1' and ubin[1]=='0'):
+                                lbin = format(l, fr)
+                                ubin = format(u, fr)
+
+                                list1 = list(lbin)
+                                list2 = list(ubin)
+                                if (lbin[1] == '1'): 
+                                        list1[1] = '0'
+                                        l = (l*2-int(r/2))%r
+                                else: 
+                                        list1[1] = '1'
+                                        l = (l*2+int(r/2))%r
+
+                                if (ubin[1] == '1'): 
+                                        list2[1] = '0'
+                                        u = (u*2 + 1 - int(r/2))%r
+                                else: 
+                                        list2[1] = '1'
+                                        u = (u*2 + 1 + int(r/2))%r
+                                lbin = ''.join(list1)
+                                ubin = ''.join(list2)
+                                scale3 += 1
+        if (scale3 > 0):
+                list1 = list(lbin)
+                ind = list1.index('0')
+                for i in range(0, ind+1):
+                        code += list1[i]
+                code += '1'
+                for i in range(ind+1, len(lbin)):
+                        code += list1[i]
+        else:
+                code += lbin
         return code
 
 def limiteIntervaloInf (alfabeto, frecuencias, m):
         ind = alfabeto.index(m)
-        for i in range(0, ind-1)
-                a += (4*frecuencias(i))
+        a = 0
+        for i in range(0, ind):
+                a += frecuencias[i]
         return a
 
 def limiteIntervaloSup (alfabeto, frecuencias, m):
         ind = alfabeto.index(m)
-        for i in range(0, ind)
-                a += (4*frecuencias(i))
+        a = 0
+        for i in range(0, ind+1):
+                a += frecuencias[i]
         return a    
-    
+
+alfabeto=['1','2','3']
+frecuencias=[40,1,9]
+mensaje='1321'
+
+print(IntegerArithmeticCode(mensaje,alfabeto,frecuencias))
 #%%
             
             
@@ -81,9 +124,61 @@ dar el mensaje original
 """
            
 def IntegerArithmeticDecode(codigo,tamanyo_mensaje,alfabeto,frecuencias):
+        r = 1 
+        T = 0
+        for f in frecuencias:   # suma de freq
+                T += f
 
-    
+        lon = 0
+        while r < 4*T:          # calculo de r 
+                r = 2*r
+                lon += 1 #longitud de la paraula en bits
+        l = 0
+        u = r-1   
 
+        decoded = ''
+
+        for m in mensaje:
+                lfix = l
+                ufix = u
+                l = int(lfix + ((ufix - lfix + 1)*limiteIntervaloInf(alfabeto, frecuencias, m)/T))%r
+                u = int(lfix + ((ufix - lfix + 1)*limiteIntervaloSup(alfabeto, frecuencias, m)/T) - 1)%r
+                lfix = l
+                ufix = u
+
+                lbin = format(l, fr)
+                ubin = format(u, fr)
+                
+                while (lbin[0] == ubin[0] or (lbin[1]=='1' and ubin[1]=='0')):
+                        if (lbin[0] == ubin[0]):                           
+                                l = (l*2)%r
+                                u = (u*2 + 1)%r
+                                lbin = format(l, fr)
+                                ubin = format(u, fr)
+                                # t = ...
+
+                        if (lbin[1]=='1' and ubin[1]=='0'):
+                                lbin = format(l, fr)
+                                ubin = format(u, fr)
+
+                                list1 = list(lbin)
+                                list2 = list(ubin)
+                                if (lbin[1] == '1'): 
+                                        list1[1] = '0'
+                                        l = (l*2-int(r/2))%r
+                                else: 
+                                        list1[1] = '1'
+                                        l = (l*2+int(r/2))%r
+
+                                if (ubin[1] == '1'): 
+                                        list2[1] = '0'
+                                        u = (u*2 + 1 - int(r/2))%r
+                                else: 
+                                        list2[1] = '1'
+                                        u = (u*2 + 1 + int(r/2))%r
+                                lbin = ''.join(list1)
+                                ubin = ''.join(list2)
+                                # do the same w/ t
 
              
             
@@ -102,21 +197,20 @@ Definir otra función que decodifique los mensajes codificados con la función
 anterior.
 '''
 
-
+'''
 def EncodeArithmetic(mensaje_a_codificar):
-
     return mensaje_codificado,alfabeto,frecuencias
     
 def DecodeArithmetic(mensaje_codificado,tamanyo_mensaje,alfabeto,frecuencias):
 
     return mensaje_decodificado
-        
+        '''
 #%%
 '''
 Ejemplo (!El mismo mensaje se puede codificar con varios códigos¡)
 
 '''
-
+'''
 lista_C=['010001110110000000001000000111111000000100010000000000001100000010001111001100001000000',
          '01000111011000000000100000011111100000010001000000000000110000001000111100110000100000000']
 alfabeto=['a','b','c','d']
@@ -133,7 +227,7 @@ for C in lista_C:
 #%%
 
 '''
-Ejemplo
+#Ejemplo
 
 '''
 
@@ -147,4 +241,4 @@ print(ratio_compresion)
 if (mensaje!=mensaje_recuperado):
         print('!!!!!!!!!!!!!!  ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         
-        
+        '''
