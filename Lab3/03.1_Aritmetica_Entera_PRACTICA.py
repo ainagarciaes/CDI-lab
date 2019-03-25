@@ -20,9 +20,56 @@ T: suma total de frecuencias
 
 """
 
-
+#check book
 def IntegerArithmeticCode(mensaje,alfabeto,frecuencias):
-    
+        r = 1 
+        T = 0
+        for f in frecuencias:   # suma de freq
+                T += f
+
+        l = 0
+        while r < 4*T:          # calculo de r 
+                r = 2*r
+                l += 1 #longitud de la paraula en bits
+
+        code = ''
+
+        v = 0 #index del missatge que estem tractant
+        a = r
+        b = r
+        while i < l:
+                # buscar interval
+                a *= limiteIntervaloInf(alfabeto, frecuencias, mensaje[v])/r
+                b *= limiteIntervaloSup(alfabeto, frecuencias, mensaje[v])/r
+                # e1
+                if (b < r/2):
+                        code += '0'
+                        # rescale a and b
+                        a *= 2
+                        b *= 2 
+                        l += 1
+                # e2
+                elif (a >= r/2):
+                        code += '1'
+                        # reescale
+                        a = a*2 - r/2
+                        b = b*2 - r/2
+                        l += 1
+                else:
+                        v += 1
+        return code
+
+def limiteIntervaloInf (alfabeto, frecuencias, m):
+        ind = alfabeto.index(m)
+        for i in range(0, ind-1)
+                a += (4*frecuencias(i))
+        return a
+
+def limiteIntervaloSup (alfabeto, frecuencias, m):
+        ind = alfabeto.index(m)
+        for i in range(0, ind)
+                a += (4*frecuencias(i))
+        return a    
     
 #%%
             
