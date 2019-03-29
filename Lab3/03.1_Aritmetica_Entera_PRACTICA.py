@@ -6,9 +6,6 @@
 import math
 import random
 
-
-
-
 #%%
 """
 Dado un mensaje y su alfabeto con sus frecuencias dar el código 
@@ -154,7 +151,6 @@ def IntegerArithmeticDecode(codigo,tamanyo_mensaje,alfabeto,frecuencias):
 
 		if found:
 			decoded += alfabeto[ind]
-			print(decoded)
 			lfix = l
 			ufix = u
 			l = int(lfix + ((ufix - lfix + 1)*limiteIntervaloInf(alfabeto, frecuencias, alfabeto[ind])/T))%r
@@ -213,7 +209,6 @@ def IntegerArithmeticDecode(codigo,tamanyo_mensaje,alfabeto,frecuencias):
 					ubin = ''.join(list2)
 					t = ''.join(list3)
 					tint = int(t, 2)   
-					print("l: ", l, lbin, "u: ", u,ubin, "t:", tint)  
 	return decoded                                               
                 
 alfabeto=['1','2','3']
@@ -230,13 +225,113 @@ obtenido a partir de las frecuencias de los caracteres del mensaje.
 Definir otra función que decodifique los mensajes codificados con la función 
 anterior.
 '''
+def tablaFrecuencias(mensaje):
+	frecuencias = {}
+	for i, c in enumerate(mensaje):
+		if (not c in frecuencias): 
+			frecuencias.update({c:1})
+		else:
+			num = frecuencias.get(c)
+			frecuencias.update({c:num+1})
+	return frecuencias
 
 
+def calculaM(frecuencias):
+	minima = min(frecuencias)
+	m = math.ceil(-math.log2(minima))
+	return m
+	
 def EncodeArithmetic(mensaje_a_codificar):
-    return mensaje_codificado,alfabeto,frecuencias
+	f = tablaFrecuencias(mensaje_a_codificar)
+	alfabeto = list(f.keys())
+	frecuencias = list(f.values())
+
+	total = sum(frecuencias)
+
+	u = 1
+	l = 0
+
+	mensaje_codificado = ''
+
+	for m in mensaje_a_codificar:
+		laux = l
+		l = laux + (u - laux)*limiteIntervaloInf(alfabeto, frecuencias, m)/total
+		u = laux + (u - laux)*limiteIntervaloSup(alfabeto, frecuencias, m)/total
+		while(u < 0.5 or l >= 0.5):
+			if(u < 0.5):
+				mensaje_codificado += '0'
+				l = 2*l
+				u = 2*u
+			if(l >= 0.5):
+				mensaje_codificado += '1'
+				l = 2*(l-0.5)
+				u = 2*(u-0.5)
+	eos = (u+l)/2
+	word_length = calculaM(frecuencias)
+
+	tag = "{0:b}".format((int(1/eos)))
+
+	mensaje_codificado += tag + (word_length - len(tag))*'0'
+	return mensaje_codificado,alfabeto,frecuencias
+
+def decisor(frecuencias, percentage):
+	t = 0
+	tnext = 0
+	found = False
+	i = 0
+	for f in frecuencias:	
+		tnext += f
+		if (percentage < tnext and percentage >= t):
+			found = True
+			break
+		t = tnext
+		i += 1
+	if (not found):
+		i -= 1
+	return i, t, tnext
+
+def tagFloat(tag):
+	res = 0.0
+	for i, t in enumerate(tag):
+		res += int(t)*2**-(i+1)
+	return res
+
     
 def DecodeArithmetic(mensaje_codificado,tamanyo_mensaje,alfabeto,frecuencias):
-    return mensaje_decodificado
+	pos = 0
+	total = sum(frecuencias)
+	frecuencias = [x / total for x in frecuencias]
+	u = 1.0
+	l = 0.0
+
+	word_length = calculaM(frecuencias)
+	mensaje_descodificado = ''
+	tag = mensaje_codificado[0:word_length]
+	tagfloat = tagFloat(tag)
+	percentage = tagfloat / (u-l)
+
+	while len(mensaje_descodificado) < tamanyo_mensaje:
+		i, t, tnext = decisor(frecuencias, percentage)
+		print(alfabeto[i], end='', flush=True)
+		mensaje_descodificado += alfabeto[i]
+		laux = l
+		l = laux + (u - laux)*t
+		u = laux + (u - laux)*tnext
+		while(u < 0.5 or l >= 0.5):
+			if(u < 0.5):
+				pos += 1
+				tag = mensaje_codificado[pos:pos+word_length]
+				tagfloat = tagFloat(tag)
+				l = 2*l
+				u = 2*u
+			if(l >= 0.5):
+				pos += 1
+				tag = mensaje_codificado[pos:pos+word_length]
+				tagfloat = tagFloat(tag)
+				l = 2*(l-0.5)
+				u = 2*(u-0.5)
+		percentage = (tagfloat - l) / (u-l)
+	return mensaje_descodificado
         
 #%%
 '''
@@ -262,7 +357,7 @@ for C in lista_C:
 '''
 #Ejemplo
 
-'''
+
 
 mensaje='La heroica ciudad dormía la siesta. El viento Sur, caliente y perezoso, empujaba las nubes blanquecinas que se rasgaban al correr hacia el Norte. En las calles no había más ruido que el rumor estridente de los remolinos de polvo, trapos, pajas y papeles que iban de arroyo en arroyo, de acera en acera, de esquina en esquina revolando y persiguiéndose, como mariposas que se buscan y huyen y que el aire envuelve en sus pliegues invisibles. Cual turbas de pilluelos, aquellas migajas de la basura, aquellas sobras de todo se juntaban en un montón, parábanse como dormidas un momento y brincaban de nuevo sobresaltadas, dispersándose, trepando unas por las paredes hasta los cristales temblorosos de los faroles, otras hasta los carteles de papel mal pegado a las esquinas, y había pluma que llegaba a un tercer piso, y arenilla que se incrustaba para días, o para años, en la vidriera de un escaparate, agarrada a un plomo. Vetusta, la muy noble y leal ciudad, corte en lejano siglo, hacía la digestión del cocido y de la olla podrida, y descansaba oyendo entre sueños el monótono y familiar zumbido de la campana de coro, que retumbaba allá en lo alto de la esbeltatorre en la Santa Basílica. La torre de la catedral, poema romántico de piedra,delicado himno, de dulces líneas de belleza muda y perenne, era obra del siglo diez y seis, aunque antes comenzada, de estilo gótico, pero, cabe decir, moderado por uninstinto de prudencia y armonía que modificaba las vulgares exageraciones de estaarquitectura. La vista no se fatigaba contemplando horas y horas aquel índice depiedra que señalaba al cielo; no era una de esas torres cuya aguja se quiebra desutil, más flacas que esbeltas, amaneradas, como señoritas cursis que aprietandemasiado el corsé; era maciza sin perder nada de su espiritual grandeza, y hasta sussegundos corredores, elegante balaustrada, subía como fuerte castillo, lanzándosedesde allí en pirámide de ángulo gracioso, inimitable en sus medidas y proporciones.Como haz de músculos y nervios la piedra enroscándose en la piedra trepaba a la altura, haciendo equilibrios de acróbata en el aire; y como prodigio de juegosmalabares, en una punta de caliza se mantenía, cual imantada, una bola grande debronce dorado, y encima otra más pequenya, y sobre ésta una cruz de hierro que acababaen pararrayos.'
 mensaje_codificado,alfabeto,frecuencias=EncodeArithmetic(mensaje)
@@ -274,4 +369,3 @@ print(ratio_compresion)
 if (mensaje!=mensaje_recuperado):
         print('!!!!!!!!!!!!!!  ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         
-        '''
