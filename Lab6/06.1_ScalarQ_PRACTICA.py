@@ -26,7 +26,27 @@ Sigma=np.sqrt(sum(sum((imagenOriginal-imagenCuantizada)**2)))/(n*m)
 
 """
 
+def pixelScalarQ(imagen, k):
+    #tamany del interval per la K donada (el 8 es perque la imatge original esta representada amb 8 bits (b&w))
+    sh= 2**(8-k+1) 
+    #arrodonir cada pixel al valor mes proper segons el tamany d'interval
+    img = [[np.round(i /sh) for i in row] for row in imagen] 
+    #retornem la imatge comprimida
+    return img
 
+# cridem a la funcio per cada un dels valors de K demanats al enunciat
+for k in range (1, 8):
+    imagenCuantizada = pixelScalarQ(imagen, k)
+    print("\n------------ VALOR DE K ", k, " ------------\n")
+    ratio_compresion =  8 / k
+    Sigma=np.sqrt(sum(sum((imagen-imagenCuantizada)**2)))/(n*m)
+
+    print("Ratio de compresion:", ratio_compresion, "Sigma: ", Sigma)
+
+    plt.imshow(imagenCuantizada, cmap=plt.cm.gray)
+    plt.xticks([])
+    plt.yticks([])
+    plt.show() 
 
 
 #%%
@@ -39,9 +59,4 @@ es necesario guardar 16 bits extra para los valores máximos
 y mínimos del bloque, esto supone 16/n_bloque**2 bits más por pixel).
 """
 
-      
-            
-
-
-
-           
+# TODO
