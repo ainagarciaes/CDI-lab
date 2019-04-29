@@ -33,7 +33,7 @@ def pixelScalarQ(imagen, k):
     img = [[np.round(i /sh) for i in row] for row in imagen] 
     #retornem la imatge comprimida
     return img
-"""
+
 # cridem a la funcio per cada un dels valors de K demanats al enunciat
 for k in range (1, 8):
     imagenCuantizada = pixelScalarQ(imagen, k)
@@ -47,7 +47,7 @@ for k in range (1, 8):
     plt.xticks([])
     plt.yticks([])
     plt.show() 
-"""
+
 
 #%%
 """
@@ -102,8 +102,14 @@ def blockScalarQ(imagen, nbloq = 8, k = 2):
             imagen = pixelQuant(min, max, imagen, i, j)
     return imagen
 
-imagenFinal = blockScalarQ(imagen)
-plt.imshow(imagenFinal, cmap=plt.cm.gray)
+imagenCuantizada = blockScalarQ(imagen)
+n_bloque = 8
+ratio_compresion =  2**8/(2**k+16/n_bloque**2) 
+Sigma=np.sqrt(sum(sum((imagen-imagenCuantizada)**2)))/(n*m)
+
+print("Ratio de compresion:", ratio_compresion, "Sigma: ", Sigma)
+
+plt.imshow(imagenCuantizada, cmap=plt.cm.gray)
 plt.xticks([])
 plt.yticks([])
 plt.show() 
