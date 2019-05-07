@@ -18,7 +18,24 @@ H_WH(4)=
 """
 
 def H_WH(N):
+	# matrix creation
+	H = np.full((N,N), 1)	
+	# initialization
+	i1 = 1
+	while i1 < N:
+		for i2 in range(i1):
+			for i3 in range(i1):
+				H[i2+i1][i3]    = H[i2][i3]
+				H[i2][i3+i1]    = H[i2][i3]
+				H[i2+i1][i3+i1] = -1 * H[i2][i3]
+		i1 += i1
+	return H
 
+print(H_WH(1))
+print(H_WH(2))
+print(H_WH(4))
+print(H_WH(8))
+print(H_WH(16))
 
 
 """
@@ -42,13 +59,14 @@ dwht_bloque(
              [ -51, -112.5, 146.5,  45]]
 
 """
+'''
 def dwht_bloque(p):
 
 
 
 
 def idwht_bloque(p):
-
+'''
 
 """
 Reproducir los bloques base de la transformación para los casos N=4,8,16
