@@ -16,6 +16,20 @@ H_WH(4)=
        [ 0.5, -0.5, -0.5,  0.5],
        [ 0.5, -0.5,  0.5, -0.5]]
 """
+def Reorder(H_desordenada):
+	x, y = np.shape(H_desordenada)
+	H_ordenada = np.full((x,y), 1)	
+
+	for i in range(0, x):
+		canvis = 0
+		for j in range (1, y):
+			if (H_desordenada[i, j-1] != H_desordenada[i, j]):
+				canvis += 1
+
+		for j in range (0, y):
+			H_ordenada[canvis][j] = H_desordenada[i][j]		
+
+	return H_ordenada
 
 def H_WH(N):
 	# matrix creation
@@ -29,13 +43,9 @@ def H_WH(N):
 				H[i2][i3+i1]    = H[i2][i3]
 				H[i2+i1][i3+i1] = -1 * H[i2][i3]
 		i1 += i1
+	H = Reorder(H) 		# reorder the rows
+	H = H / np.sqrt(N)	# divide it by sqrt(n)
 	return H
-
-print(H_WH(1))
-print(H_WH(2))
-print(H_WH(4))
-print(H_WH(8))
-print(H_WH(16))
 
 
 """
@@ -59,15 +69,28 @@ dwht_bloque(
              [ -51, -112.5, 146.5,  45]]
 
 """
-'''
-def dwht_bloque(p):
 
+def dwht_bloque(p):
+	x, _ = np.shape(p)
+	H = H_WH(x)
+
+	result = np.dot(H, p)
+	result = np.dot(result, H)
+	
+	return result
 
 
 
 def idwht_bloque(p):
-'''
+	x, _ = np.shape(p)
+	H = H_WH(x)
+	H = np.linalg.inv(H)
 
+	result = np.dot(H, p)
+	result = np.dot(result, H)
+	
+	return result
+	
 """
 Reproducir los bloques base de la transformación para los casos N=4,8,16
 Ver imágenes adjuntas
