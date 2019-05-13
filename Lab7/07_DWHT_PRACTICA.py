@@ -96,4 +96,20 @@ Reproducir los bloques base de la transformación para los casos N=4,8,16
 Ver imágenes adjuntas
 """
 
+def printBlock(N):
+	H = H_WH(N)
+	i = 0
+
+	for row in range(N):
+		for col in range(N):
+			i += 1
+			plt.subplot(N, N, i)
+			img = np.tensordot(H[row], np.transpose(H[col]), 0)
+			plt.imshow(img)
+	plt.show()
+	return
+
+printBlock(4)
+printBlock(8)
+printBlock(16)
 
