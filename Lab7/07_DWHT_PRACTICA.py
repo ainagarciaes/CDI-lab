@@ -3,6 +3,9 @@
 
 ########################################################
 
+# https://github.com/elenaouro/CDI-Compression-of-Data-and-Images-/blob/master/JPEG/07_P_jpeg.py
+# https://github.com/xarxax/CDI/blob/master/07JPEG/07_jpeg_PRACTICA.py
+
 import numpy as np
 import matplotlib.pyplot as plt
 
