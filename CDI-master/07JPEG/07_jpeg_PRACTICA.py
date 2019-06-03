@@ -323,4 +323,3 @@ start= time.clock()
 mandril_jpeg=jpeg_color(mandril_color)
 end= time.clock()
 print("tiempo",(end-start))
-
